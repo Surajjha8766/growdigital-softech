@@ -12,6 +12,7 @@ connectDB();
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const contactRoutes = require('./routes/contactRoutes'); // Add this line
 
 // Initialize express
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/contact', contactRoutes); // Add this line
 
 // Health check
 app.get('/', (req, res) => {
