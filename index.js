@@ -12,7 +12,8 @@ connectDB();
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const contactRoutes = require('./routes/contactRoutes'); // Add this line
+const contactRoutes = require('./routes/contactRoutes'); 
+const blogRoutes = require('./routes/blogRoutes');
 
 // Initialize express
 const app = express();
@@ -24,7 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/contact', contactRoutes); // Add this line
+app.use('/api/contact', contactRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Health check
 app.get('/', (req, res) => {

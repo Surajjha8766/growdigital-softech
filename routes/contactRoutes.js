@@ -1,10 +1,19 @@
 const express = require('express');
 const router = express.Router();
+
 const {
-  submitContactForm
+  submitContactForm,
+  getAllMessages,
+  getMessageById
 } = require('../controllers/contactController');
 
-// Sirf ek public route - form submit karne ke liye
+const { protect } = require('../middleware/authMiddleware');
+
+// Public
 router.post('/', submitContactForm);
+
+// Admin
+router.get('/messages', getAllMessages);
+router.get('/messages/:id', getMessageById);
 
 module.exports = router;
