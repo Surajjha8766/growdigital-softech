@@ -14,6 +14,7 @@ connectDB();
 const authRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contactRoutes'); 
 const blogRoutes = require('./routes/blogRoutes');
+const googleAuthRoutes = require("./routes/googleAuth.routes");
 
 // Initialize express
 const app = express();
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use("/api/review", googleAuthRoutes);
 
 // Health check
 app.get('/', (req, res) => {
