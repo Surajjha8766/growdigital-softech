@@ -9,9 +9,9 @@ exports.getReviews = async (req, res) => {
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${GOOGLE_PLACE_ID}&fields=name,rating,reviews&key=${GOOGLE_API_KEY}`
     );
 
-    if (!response.data.result) {
-      return res.status(404).json({ success: false, reviews: [], message: "No reviews found" });
-    }
+    // if (!response.data.result) {
+    //   return res.status(404).json({ success: false, reviews: [], message: "No reviews found" });
+    // }
 
     const reviews = (response.data.result.reviews || []).map(r => ({
       name: r.author_name,

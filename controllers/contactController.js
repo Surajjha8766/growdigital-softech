@@ -240,8 +240,109 @@
 // };
 
 
+// const Contact = require('../models/contact');
+// const nodemailer = require('nodemailer');
+
+// // ================= SUBMIT CONTACT =================
+// exports.submitContactForm = async (req, res) => {
+//   try {
+//     const { name, email, phone, subject, message } = req.body;
+
+//     if (!name || !email || !phone || !message) {
+//       return res.status(400).json({ success: false, message: 'All fields required' });
+//     }
+
+//     const contact = await Contact.create({
+//       name,
+//       email,
+//       phone,
+//       subject: subject || 'No Subject',
+//       message,
+//       read: false
+//     });
+
+//     // ===== MAIL SEND =====
+//     const transporter = nodemailer.createTransport({
+//       service: 'gmail',
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS
+//       }
+//     });
+
+//     await transporter.sendMail({
+//       from: `"Grow Digital Softech" <${process.env.EMAIL_USER}>`,
+//       to: 'jhasuraj26748@gmail.com', // ✅ ONLY THIS
+//       subject: `New Contact Message`,
+//       html: `
+//         <h3>New Contact</h3>
+//         <p><b>Name:</b> ${name}</p>
+//         <p><b>Email:</b> ${email}</p>
+//         <p><b>Phone:</b> ${phone}</p>
+//         <p><b>Message:</b><br/>${message}</p>
+//       `
+//     });
+
+//     res.json({ success: true, message: 'Message sent successfully' });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
+
+// // ================= GET ALL MESSAGES =================
+// exports.getAllMessages = async (req, res) => {
+//   const messages = await Contact.find().sort({ createdAt: -1 });
+
+//   res.json({
+//     success: true,
+//     total: messages.length,
+//     unread: messages.filter(m => !m.read).length,
+//     messages
+//   });
+// };
+
+// // ================= GET MESSAGE BY ID =================
+// exports.getMessageById = async (req, res) => {
+//   const message = await Contact.findById(req.params.id);
+
+//   if (!message) {
+//     return res.status(404).json({ success: false, message: 'Message not found' });
+//   }
+
+//   // auto mark as read
+//   if (!message.read) {
+//     message.read = true;
+//     await message.save();
+//   }
+
+//   res.json({ success: true, message });
+// };
+
+
 const Contact = require('../models/contact');
 const nodemailer = require('nodemailer');
+
+// ✅ GMAIL SMTP (Render-safe)
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // MUST be false
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// optional but very useful for debugging
+transporter.verify((err, success) => {
+  if (err) {
+    console.error('SMTP ERROR:', err.message);
+  } else {
+    console.log('SMTP READY');
+  }
+});
 
 // ================= SUBMIT CONTACT =================
 exports.submitContactForm = async (req, res) => {
@@ -252,33 +353,26 @@ exports.submitContactForm = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All fields required' });
     }
 
-    const contact = await Contact.create({
+    // Save in DB
+    await Contact.create({
       name,
       email,
       phone,
-      subject: subject || 'No Subject',
-      message,
-      read: false
+      subject,
+      message
     });
 
-    // ===== MAIL SEND =====
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
+    // Send mail
     await transporter.sendMail({
       from: `"Grow Digital Softech" <${process.env.EMAIL_USER}>`,
-      to: 'jhasuraj26748@gmail.com', // ✅ ONLY THIS
-      subject: `New Contact Message`,
+      to: process.env.MAIL_TO,
+      subject: 'New Contact Form Message',
       html: `
-        <h3>New Contact</h3>
+        <h2>New Contact</h2>
         <p><b>Name:</b> ${name}</p>
         <p><b>Email:</b> ${email}</p>
         <p><b>Phone:</b> ${phone}</p>
+        <p><b>Subject:</b> ${subject || 'No Subject'}</p>
         <p><b>Message:</b><br/>${message}</p>
       `
     });
@@ -286,36 +380,24 @@ exports.submitContactForm = async (req, res) => {
     res.json({ success: true, message: 'Message sent successfully' });
 
   } catch (err) {
-    console.error(err);
+    console.error('MAIL ERROR:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// ================= GET ALL MESSAGES =================
+// ================= GET ALL =================
 exports.getAllMessages = async (req, res) => {
   const messages = await Contact.find().sort({ createdAt: -1 });
-
-  res.json({
-    success: true,
-    total: messages.length,
-    unread: messages.filter(m => !m.read).length,
-    messages
-  });
+  res.json({ success: true, messages });
 };
 
-// ================= GET MESSAGE BY ID =================
+// ================= GET ONE =================
 exports.getMessageById = async (req, res) => {
   const message = await Contact.findById(req.params.id);
-
   if (!message) {
-    return res.status(404).json({ success: false, message: 'Message not found' });
+    return res.status(404).json({ success: false, message: 'Not found' });
   }
-
-  // auto mark as read
-  if (!message.read) {
-    message.read = true;
-    await message.save();
-  }
-
+  message.read = true;
+  await message.save();
   res.json({ success: true, message });
 };
