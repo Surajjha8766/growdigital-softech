@@ -1,348 +1,9 @@
-// const Contact = require('../models/contact');
-// const nodemailer = require('nodemailer');
-
-// // @desc    Submit contact form
-// // @route   POST /api/contact
-// // @access  Public
-// exports.submitContactForm = async (req, res) => {
-//   try {
-//     const { name, email, phone, subject, message } = req.body;
-
-//     // Validation
-//     if (!name || !email || !phone || !message) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Please fill all required fields'
-//       });
-//     }
-
-//     // Email validation
-//     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-//     if (!emailRegex.test(email)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Please provide a valid email address'
-//       });
-//     }
-
-//     // Phone validation (10 digits)
-//     const phoneRegex = /^[0-9]{10}$/;
-//     if (!phoneRegex.test(phone)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Please provide a valid 10-digit phone number'
-//       });
-//     }
-
-//     // Message length validation
-//     if (message.length < 10) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Message must be at least 10 characters long'
-//       });
-//     }
-
-//     // Save to database
-//     let savedContact = null;
-//     try {
-//       const contact = new Contact({
-//         name,
-//         email,
-//         phone,
-//         subject: subject || 'No Subject',
-//         message,
-//         read: false // Add read field to model
-//       });
-//       savedContact = await contact.save();
-//       console.log('Contact saved to database:', savedContact._id);
-//     } catch (dbError) {
-//       console.error('Database save error:', dbError.message);
-//     }
-
-//     // Send email to info@growdigitalsoftech.in
-//     try {
-//       const transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//           user: process.env.EMAIL_USER,
-//           pass: process.env.EMAIL_PASS
-//         }
-//       });
-
-//       const mailOptions = {
-//         from: `"Grow Digital Softech Website" <${process.env.EMAIL_USER}>`,
-//         to: process.env.EMAIL_TO || 'info@growdigitalsoftech.in',
-//         subject: subject ? `New Contact: ${subject}` : `New Message from ${name}`,
-//         html: `
-//           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-//             <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">New Contact Form Submission</h2>
-            
-//             <table style="width: 100%; border-collapse: collapse;">
-//               <tr>
-//                 <td style="padding: 10px 0; font-weight: bold; width: 120px;">Name:</td>
-//                 <td style="padding: 10px 0;">${name}</td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 10px 0; font-weight: bold;">Email:</td>
-//                 <td style="padding: 10px 0;"><a href="mailto:${email}" style="color: #2563eb;">${email}</a></td>
-//               </tr>
-//               <tr>
-//                 <td style="padding: 10px 0; font-weight: bold;">Phone:</td>
-//                 <td style="padding: 10px 0;"><a href="tel:${phone}" style="color: #2563eb;">${phone}</a></td>
-//               </tr>
-//               ${subject ? `
-//               <tr>
-//                 <td style="padding: 10px 0; font-weight: bold;">Subject:</td>
-//                 <td style="padding: 10px 0;">${subject}</td>
-//               </tr>
-//               ` : ''}
-//               <tr>
-//                 <td style="padding: 10px 0; font-weight: bold; vertical-align: top;">Message:</td>
-//                 <td style="padding: 10px 0; background: #f5f5f5; padding: 15px; border-radius: 5px;">${message.replace(/\n/g, '<br>')}</td>
-//               </tr>
-//             </table>
-            
-//             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #666;">
-//               <p>Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
-//             </div>
-//           </div>
-//         `
-//       };
-
-//       await transporter.sendMail(mailOptions);
-//       console.log('Email sent successfully to', process.env.EMAIL_TO);
-
-//     } catch (emailError) {
-//       console.error('Email sending failed:', emailError.message);
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       message: 'Thank you for contacting us. We will get back to you soon!'
-//     });
-
-//   } catch (error) {
-//     console.error('Contact form error:', error);
-    
-//     res.status(500).json({
-//       success: false,
-//       message: 'Something went wrong. Please try again later.'
-//     });
-//   }
-// };
-
-// // @desc    Get all messages (Admin)
-// // @route   GET /api/contact/messages
-// // @access  Private
-// exports.getAllMessages = async (req, res) => {
-//   try {
-//     const messages = await Contact.find().sort({ createdAt: -1 });
-    
-//     res.json({
-//       success: true,
-//       messages,
-//       total: messages.length,
-//       unread: messages.filter(m => !m.read).length
-//     });
-//   } catch (error) {
-//     console.error('Get messages error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch messages'
-//     });
-//   }
-// };
-
-// // @desc    Get single message by ID (Admin)
-// // @route   GET /api/contact/messages/:id
-// // @access  Private
-// exports.getMessageById = async (req, res) => {
-//   try {
-//     const message = await Contact.findById(req.params.id);
-    
-//     if (!message) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Message not found'
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message
-//     });
-//   } catch (error) {
-//     console.error('Get message error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch message'
-//     });
-//   }
-// };
-
-// // @desc    Mark message as read (Admin)
-// // @route   PATCH /api/contact/messages/:id/read
-// // @access  Private
-// exports.markAsRead = async (req, res) => {
-//   try {
-//     const message = await Contact.findByIdAndUpdate(
-//       req.params.id,
-//       { read: true },
-//       { new: true }
-//     );
-
-//     if (!message) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Message not found'
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: 'Message marked as read',
-//       data: message
-//     });
-//   } catch (error) {
-//     console.error('Mark as read error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to update message'
-//     });
-//   }
-// };
-
-// // @desc    Delete message (Admin)
-// // @route   DELETE /api/contact/messages/:id
-// // @access  Private
-// exports.deleteMessage = async (req, res) => {
-//   try {
-//     const message = await Contact.findByIdAndDelete(req.params.id);
-
-//     if (!message) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Message not found'
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: 'Message deleted successfully'
-//     });
-//   } catch (error) {
-//     console.error('Delete message error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to delete message'
-//     });
-//   }
-// };
-
-
-// const Contact = require('../models/contact');
-// const nodemailer = require('nodemailer');
-
-// // ================= SUBMIT CONTACT =================
-// exports.submitContactForm = async (req, res) => {
-//   try {
-//     const { name, email, phone, subject, message } = req.body;
-
-//     if (!name || !email || !phone || !message) {
-//       return res.status(400).json({ success: false, message: 'All fields required' });
-//     }
-
-//     const contact = await Contact.create({
-//       name,
-//       email,
-//       phone,
-//       subject: subject || 'No Subject',
-//       message,
-//       read: false
-//     });
-
-//     // ===== MAIL SEND =====
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS
-//       }
-//     });
-
-//     await transporter.sendMail({
-//       from: `"Grow Digital Softech" <${process.env.EMAIL_USER}>`,
-//       to: 'jhasuraj26748@gmail.com', // ✅ ONLY THIS
-//       subject: `New Contact Message`,
-//       html: `
-//         <h3>New Contact</h3>
-//         <p><b>Name:</b> ${name}</p>
-//         <p><b>Email:</b> ${email}</p>
-//         <p><b>Phone:</b> ${phone}</p>
-//         <p><b>Message:</b><br/>${message}</p>
-//       `
-//     });
-
-//     res.json({ success: true, message: 'Message sent successfully' });
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// };
-
-// // ================= GET ALL MESSAGES =================
-// exports.getAllMessages = async (req, res) => {
-//   const messages = await Contact.find().sort({ createdAt: -1 });
-
-//   res.json({
-//     success: true,
-//     total: messages.length,
-//     unread: messages.filter(m => !m.read).length,
-//     messages
-//   });
-// };
-
-// // ================= GET MESSAGE BY ID =================
-// exports.getMessageById = async (req, res) => {
-//   const message = await Contact.findById(req.params.id);
-
-//   if (!message) {
-//     return res.status(404).json({ success: false, message: 'Message not found' });
-//   }
-
-//   // auto mark as read
-//   if (!message.read) {
-//     message.read = true;
-//     await message.save();
-//   }
-
-//   res.json({ success: true, message });
-// };
-
-
+// contactController.js - Updated with status and filter functionality
 const Contact = require('../models/contact');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// ✅ GMAIL SMTP (Render-safe)
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // MUST be false
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-// optional but very useful for debugging
-transporter.verify((err, success) => {
-  if (err) {
-    console.error('SMTP ERROR:', err.message);
-  } else {
-    console.log('SMTP READY');
-  }
-});
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================= SUBMIT CONTACT =================
 exports.submitContactForm = async (req, res) => {
@@ -354,50 +15,193 @@ exports.submitContactForm = async (req, res) => {
     }
 
     // Save in DB
-    await Contact.create({
+    const newContact = await Contact.create({
       name,
       email,
       phone,
-      subject,
-      message
+      subject: subject || 'No Subject',
+      message,
+      status: 'pending'
     });
 
-    // Send mail
-    await transporter.sendMail({
-      from: `"Grow Digital Softech" <${process.env.EMAIL_USER}>`,
-      to: process.env.MAIL_TO,
-      subject: 'New Contact Form Message',
+    console.log('Form submitted:', { name, email, phone, subject });
+
+    // 1. Send email to ADMIN
+    await resend.emails.send({
+      from: 'Grow Digital Softech <team@growdigitalsoftech.in>',
+      to: ['info.growdigitalsoftech@gmail.com'],
+      replyTo: email,
+      subject: `New Contact Form Submission from ${name}`,
       html: `
-        <h2>New Contact</h2>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <p><b>Subject:</b> ${subject || 'No Subject'}</p>
-        <p><b>Message:</b><br/>${message}</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #1E5BFF; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f5f7fd; padding: 30px; border-radius: 0 0 10px 10px; }
+            .field { margin-bottom: 20px; }
+            .label { font-weight: bold; color: #1E5BFF; margin-bottom: 5px; }
+            .value { background: white; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>📬 New Contact Form Submission</h2>
+              <p>Grow Digital Softech</p>
+            </div>
+            <div class="content">
+              <div class="field"><div class="label">👤 Name</div><div class="value">${name}</div></div>
+              <div class="field"><div class="label">📧 Email</div><div class="value">${email}</div></div>
+              <div class="field"><div class="label">📞 Phone</div><div class="value">${phone}</div></div>
+              <div class="field"><div class="label">📋 Subject</div><div class="value">${subject || 'No Subject'}</div></div>
+              <div class="field"><div class="label">💬 Message</div><div class="value">${message.replace(/\n/g, '<br/>')}</div></div>
+            </div>
+          </div>
+        </body>
+        </html>
       `
     });
 
-    res.json({ success: true, message: 'Message sent successfully' });
+    // 2. Send THANK YOU email to USER
+    await resend.emails.send({
+      from: 'Grow Digital Softech Team <team@growdigitalsoftech.in>',
+      to: [email],
+      subject: 'Thank you for contacting Grow Digital Softech!',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head><style>body{font-family:Arial,sans-serif;}</style></head>
+        <body>
+          <h2>Thank You ${name}! 🙏</h2>
+          <p>We have received your message and will get back to you within 24 hours.</p>
+          <p>📞 Need immediate help? Call us: +91 87662 97212</p>
+          <p>💬 WhatsApp: <a href="https://wa.me/918766297212">Click to chat</a></p>
+          <hr/>
+          <p>Grow Digital Softech<br/>Building Digital Excellence</p>
+        </body>
+        </html>
+      `
+    });
+
+    res.status(200).json({ success: true, message: 'Message sent successfully! We will contact you soon.' });
 
   } catch (err) {
-    console.error('MAIL ERROR:', err);
+    console.error('Resend Error:', err);
+    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+  }
+};
+
+// ================= GET ALL MESSAGES WITH FILTERS =================
+exports.getAllMessages = async (req, res) => {
+  try {
+    const { filter, startDate, endDate, status } = req.query;
+    let query = {};
+
+    // Status filter
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    // Date filters
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (filter === 'today') {
+      query.createdAt = { $gte: today };
+    } 
+    else if (filter === 'yesterday') {
+      query.createdAt = { $gte: yesterday, $lt: today };
+    }
+    else if (filter === 'custom' && startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      query.createdAt = { $gte: start, $lte: end };
+    }
+
+    const messages = await Contact.find(query).sort({ createdAt: -1 });
+    
+    // Get counts for stats
+    const totalCount = await Contact.countDocuments();
+    const unreadCount = await Contact.countDocuments({ read: false });
+    const pendingCount = await Contact.countDocuments({ status: 'pending' });
+    const contactedCount = await Contact.countDocuments({ status: 'contacted' });
+    const completedCount = await Contact.countDocuments({ status: 'completed' });
+
+    res.json({ 
+      success: true, 
+      messages,
+      stats: {
+        total: totalCount,
+        unread: unreadCount,
+        pending: pendingCount,
+        contacted: contactedCount,
+        completed: completedCount
+      }
+    });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// ================= GET ALL =================
-exports.getAllMessages = async (req, res) => {
-  const messages = await Contact.find().sort({ createdAt: -1 });
-  res.json({ success: true, messages });
+// ================= GET SINGLE MESSAGE =================
+exports.getMessageById = async (req, res) => {
+  try {
+    const message = await Contact.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ success: false, message: 'Not found' });
+    }
+    if (!message.read) {
+      message.read = true;
+      await message.save();
+    }
+    res.json({ success: true, message });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
-// ================= GET ONE =================
-exports.getMessageById = async (req, res) => {
-  const message = await Contact.findById(req.params.id);
-  if (!message) {
-    return res.status(404).json({ success: false, message: 'Not found' });
+// ================= UPDATE MESSAGE STATUS =================
+exports.updateMessageStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['pending', 'contacted', 'completed'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+    const message = await Contact.findByIdAndUpdate(
+      req.params.id,
+      { status, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!message) {
+      return res.status(404).json({ success: false, message: 'Message not found' });
+    }
+
+    res.json({ success: true, message });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-  message.read = true;
-  await message.save();
-  res.json({ success: true, message });
+};
+
+// ================= DELETE MESSAGE =================
+exports.deleteMessage = async (req, res) => {
+  try {
+    await Contact.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Message deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
