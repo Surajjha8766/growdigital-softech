@@ -9,7 +9,7 @@ const {
   deleteMessage
 } = require('../controllers/contactController');
 
-const { protect } = require('../middleware/authMiddleware');
+const protect = require('../middleware/authMiddleware');
 
 // Public
 router.post('/', submitContactForm);
