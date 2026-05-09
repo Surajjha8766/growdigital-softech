@@ -16,7 +16,6 @@ const contactRoutes = require('./routes/contactRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const googleAuthRoutes = require("./routes/googleAuth.routes");
 const paymentRoutes = require("./routes/paymentRoutes");
-app.use("/api/payment", paymentRoutes);
 
 // Initialize express
 const app = express();
@@ -31,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use("/api/review", googleAuthRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Health check
 app.get('/', (req, res) => {
