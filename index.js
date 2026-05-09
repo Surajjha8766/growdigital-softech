@@ -15,6 +15,8 @@ const authRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contactRoutes'); 
 const blogRoutes = require('./routes/blogRoutes');
 const googleAuthRoutes = require("./routes/googleAuth.routes");
+const paymentRoutes = require("./routes/paymentRoutes");
+app.use("/api/payment", paymentRoutes);
 
 // Initialize express
 const app = express();
